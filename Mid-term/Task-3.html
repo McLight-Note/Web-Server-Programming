@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 3 - Server-Side Validation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .section {
+            margin-bottom: 40px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #fafafa;
+        }
+        .section h2 {
+            color: #4CAF50;
+            margin-top: 0;
+        }
+        .test-case {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: white;
+        }
+        .test-case h3 {
+            margin-top: 0;
+            color: #666;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .loading {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Task 3 - Server-Side Validation Testing</h1>
+        
+        <div class="section">
+            <h2>🎯 Validation Test Cases</h2>
+            <p>This page tests server-side validation for missing or invalid email addresses.</p>
+        </div>
+
+        <div class="section">
+            <h2>Test Case 1: Missing Email</h2>
+            <div class="test-case">
+                <h3>Send request without email field</h3>
+                <button onclick="testMissingEmail()">Test Missing Email</button>
+                <div id="result1" class="result" style="display: none;"></div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Test Case 2: Invalid Email Format</h2>
+            <div class="test-case">
+                <h3>Send request with invalid email format</h3>
+                <button onclick="testInvalidEmail()">Test Invalid Email</button>
+                <div id="result2" class="result" style="display: none;"></div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Test Case 3: Empty Email</h2>
+            <div class="test-case">
+                <h3>Send request with empty email string</h3>
+                <button onclick="testEmptyEmail()">Test Empty Email</button>
+                <div id="result3" class="result" style="display: none;"></div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Test Case 4: Valid Request (Control Test)</h2>
+            <div class="test-case">
+                <h3>Send valid request to confirm normal operation</h3>
+                <button onclick="testValidRequest()">Test Valid Request</button>
+                <div id="result4" class="result" style="display: none;"></div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Test Case 5: Missing Name</h2>
+            <div class="test-case">
+                <h3>Send request without name field</h3>
+                <button onclick="testMissingName()">Test Missing Name</button>
+                <div id="result5" class="result" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function makeRequest(data, resultId) {
+            const resultDiv = document.getElementById(resultId);
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result loading';
+            resultDiv.textContent = 'Sending request...';
+
+            try {
+                const response = await fetch('http://localhost:8080/api/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const responseData = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `SUCCESS (${response.status}):\n${JSON.stringify(responseData, null, 2)}`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = `ERROR (${response.status}):\n${JSON.stringify(responseData, null, 2)}`;
+                }
+                
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `CONNECTION ERROR:\n${error.message}\n\nMake sure Spring Boot is running on localhost:8080`;
+            }
+        }
+
+        function testMissingEmail() {
+            const data = {
+                name: "Test User"
+                // Email field is completely missing
+            };
+            makeRequest(data, 'result1');
+        }
+
+        function testInvalidEmail() {
+            const data = {
+                name: "Test User",
+                email: "invalid-email-format" // Invalid email format
+            };
+            makeRequest(data, 'result2');
+        }
+
+        function testEmptyEmail() {
+            const data = {
+                name: "Test User",
+                email: "" // Empty email string
+            };
+            makeRequest(data, 'result3');
+        }
+
+        function testValidRequest() {
+            const data = {
+                name: "Test User",
+                email: "test@example.com" // Valid email
+            };
+            makeRequest(data, 'result4');
+        }
+
+        function testMissingName() {
+            const data = {
+                email: "test@example.com"
+                // Name field is completely missing
+            };
+            makeRequest(data, 'result5');
+        }
+    </script>
+</body>
+</html>

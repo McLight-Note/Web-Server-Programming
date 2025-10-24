@@ -5,6 +5,7 @@ import com.example.registrationservice.dto.UserRegistrationRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -44,5 +45,22 @@ public class RegistrationController {
     @GetMapping("/health")
     public ResponseEntity<String> healthCheck() {
         return ResponseEntity.ok("Registration service is running");
+    }
+    
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<RegistrationResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        StringBuilder errorMessage = new StringBuilder("Validation failed: ");
+        
+        ex.getBindingResult().getFieldErrors().forEach(error -> {
+            errorMessage.append(error.getField()).append(" - ").append(error.getDefaultMessage()).append("; ");
+        });
+        
+        RegistrationResponse errorResponse = new RegistrationResponse(
+            errorMessage.toString(),
+            "VALIDATION_ERROR",
+            null
+        );
+        
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 }
