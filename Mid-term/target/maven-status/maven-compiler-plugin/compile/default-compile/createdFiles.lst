@@ -1,0 +1,4 @@
+com/example/registrationservice/dto/UserRegistrationRequest.class
+com/example/registrationservice/controller/RegistrationController.class
+com/example/registrationservice/dto/RegistrationResponse.class
+com/example/registrationservice/RegistrationServiceApplication.class
