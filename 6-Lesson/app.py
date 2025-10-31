@@ -3,9 +3,12 @@ import csv
 import requests
 from flask import Flask, jsonify, request
 
+# Simple Flask app that merges local CSV city data with live weather from OpenWeather
+
 app = Flask(__name__)
 
 
+# Landing page with a minimal form to submit an API key
 @app.get("/")
 def index():
 	return (
@@ -21,6 +24,7 @@ def index():
 	)
 
 
+# Reads cities and populations from cities.csv and returns a list of dicts
 def read_cities(csv_path):
 	cities = []
 	with open(csv_path, newline="", encoding="utf-8") as f:
@@ -37,6 +41,7 @@ def read_cities(csv_path):
 	return cities
 
 
+# Calls OpenWeather for a single city and extracts key weather fields
 def fetch_weather_for_city(city, api_key):
 	base_url = "https://api.openweathermap.org/data/2.5/weather"
 	params = {"q": city, "appid": api_key, "units": "metric"}
@@ -57,14 +62,18 @@ def fetch_weather_for_city(city, api_key):
 	}
 
 
+# API endpoint that merges CSV population with live weather per city
 @app.get("/city-weather")
 def city_weather():
+	# Accept API key via query string or environment variable
 	api_key = (request.args.get("api_key") or os.environ.get("OPENWEATHER_API_KEY"))
 	if not api_key:
 		return jsonify({"error": "OPENWEATHER_API_KEY is not set"}), 500
+	# Load local cities
 	csv_path = os.path.join(os.path.dirname(__file__), "cities.csv")
 	cities = read_cities(csv_path)
 	results = []
+	# Fetch weather for each city and combine
 	for entry in cities:
 		city = entry["city"]
 		population = entry["population"]
@@ -81,4 +90,5 @@ def city_weather():
 
 
 if __name__ == "__main__":
+	# Run the development server; override PORT via environment if needed
 	app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=True)
