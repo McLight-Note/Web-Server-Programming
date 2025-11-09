@@ -1,0 +1,4 @@
+com/example/bookswap/repository/UserRepositoryTest.class
+com/example/bookswap/repository/BookRepositoryTest.class
+com/example/bookswap/controller/BookControllerTest.class
+com/example/bookswap/controller/AuthControllerTest.class
