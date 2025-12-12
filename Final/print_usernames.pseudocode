@@ -1,0 +1,7 @@
+BEGIN
+    Execute SQL query: SELECT username FROM users WHERE age > 18
+    
+    FOR each row in user_results DO
+        PRINT row.username
+    END FOR
+END
